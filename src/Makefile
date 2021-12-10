@@ -14,10 +14,11 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 $(ODIR)/%.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-../kmeans: $(OBJ)
+../kmeans.exe: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
 	rm -f $(ODIR)/*.o
+	rm ../*.exe

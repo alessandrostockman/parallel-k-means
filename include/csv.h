@@ -8,6 +8,10 @@
 #include <vector>
 #include <string>
 
+#include "data.h"
+
+Dataset *create_dataset_from_csv(std::string in_file, std::vector<int> features);
+
 class CSVRow {
     public:
         std::string operator[](std::size_t index) const;

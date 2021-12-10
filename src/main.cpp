@@ -52,40 +52,17 @@ int main(int argc, char *argv[]) {
     // }
     
     std::vector<int> features = {6, 8};
-    int feature_num = features.size();
-
-    CSVRow row;
-    std::ifstream file(in_file);
-    std::vector<Record *> *records = new std::vector<Record *>;
-
-    bool first_line = true;
-    while(file >> row) {
-        if (first_line) {
-            first_line = false;
-            std::cout << "Reading following columns: \n";
-            for (int i = 0; i < (int)features.size(); i++) {
-                std::cout << row[features[i]] << " ";
-            }
-            std::cout << "\n";
-        } else {
-            std::vector<double> *f = new std::vector<double>;
-            for (int i = 0; i < (int)features.size(); i++) {
-                double n = std::stod(row[features[i]]);
-                f->push_back(n);
-            }
-            records->push_back(new Record(f));
-        }
-    }
-    Dataset dataset = Dataset(records, feature_num);
+    
+    Dataset *dataset = create_dataset_from_csv(in_file, features);
     std::vector<Record *> *centroids = new std::vector<Record *>;
     std::cout << "Dataset read\n";
 
     std::cout << "Startin algorithm execution...\n";
-    bool res = kmeans(dataset, centroids, k, max_iter);
+    bool res = kmeans(*dataset, centroids, k, max_iter);
     std::cout << "Algorithm ended: " << res << "\n";
     
     std::cout << "Writing to file:\n";
-    write_csv(dataset, centroids, out_clusters_file, out_centroids_file);
+    write_csv(*dataset, centroids, out_clusters_file, out_centroids_file);
     std::cout << "Operation succeded!\n";
     return 0;
 }

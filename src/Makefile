@@ -5,10 +5,10 @@ CC=gcc
 LIBS=-lm -fopenmp -lstdc++
 CFLAGS=-I$(IDIR) -Wall -Wextra -pedantic 
 
-_DEPS = csv.h
+_DEPS = csv.h data.h kmeans.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o csv.o 
+_OBJ = main.o csv.o data.o kmeans.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.cpp $(DEPS)

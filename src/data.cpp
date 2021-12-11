@@ -70,5 +70,5 @@ std::size_t Dataset::get_feature_num() {
 }
 
 std::size_t Dataset::size() {
-    return (*records).size() - 1;
+    return records->size();
 }

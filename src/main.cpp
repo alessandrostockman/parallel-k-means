@@ -51,13 +51,13 @@ int main(int argc, char *argv[]) {
     //     in_file = argv[4];
     // }
     
-    std::vector<int> features = {6, 8};
+    std::vector<int> features = {6, 8}; //TODO Parametrize
     
     Dataset *dataset = create_dataset_from_csv(in_file, features);
     std::vector<Record *> *centroids = new std::vector<Record *>;
-    std::cout << "Dataset read\n";
+    std::cout << "Dataset read: " << dataset->get_feature_num() << " features for " << dataset->size() << " records\n";
 
-    std::cout << "Startin algorithm execution...\n";
+    std::cout << "Starting algorithm execution...\n";
     bool res = kmeans(*dataset, centroids, k, max_iter);
     std::cout << "Algorithm ended: " << res << "\n";
     

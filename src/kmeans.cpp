@@ -8,7 +8,7 @@ KMeans::KMeans(int k, int max_iter) :
     iter(0),
     centroids(new std::vector<Record *>) {}
 
-bool KMeans::cluster(Dataset& data) {
+bool KMeans::fit(Dataset& data) {
     init_centroids(data);
 
     for (iter = 0; iter < max_iter; iter++) {

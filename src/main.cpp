@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Starting algorithm execution...\n";
     KMeans km = KMeans(k, max_iter);
-    bool res = km.cluster(*dataset);
+    bool res = km.fit(*dataset);
     if (res) {
         std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations\n";
     } else {

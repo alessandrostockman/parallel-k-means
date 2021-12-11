@@ -12,7 +12,7 @@ class KMeans {
 
     public:
         KMeans(int k, int max_iter);
-        bool cluster(Dataset& data);
+        bool fit(Dataset& data);
         double calculate_cost(Dataset& data);
         void init_centroids(Dataset& data);
         int update_centroids(Dataset& data);

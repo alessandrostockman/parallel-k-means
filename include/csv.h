@@ -10,7 +10,12 @@
 
 #include "data.h"
 
-Dataset *create_dataset_from_csv(std::string in_file, std::vector<int> features);
+class CSVParser {
+    public:
+        Dataset *read_dataset(std::string in_file, std::vector<int> features);
+        void write_cluster(Dataset d, std::string out_file);
+        void write_centroids(Dataset d, std::vector<Record *> *centroids, std::string out_file);
+};
 
 class CSVRow {
     public:

@@ -6,63 +6,60 @@
 #include "data.h"
 #include "kmeans.h"
 
-void write_csv(Dataset d, std::vector<Record *> *centroids, std::string out_clusters_file, std::string out_centroids_file) {
-    std::ofstream cl_file(out_clusters_file);
-    for (int i = 0; i < (int)d.size(); i++) {
-        for (int j = 0; j < (int)d.get_feature_num(); j++) {
-            cl_file << (*d[i])[j] << ",";
-        }
-        cl_file << d[i]->get_cluster() << "\n";
-    }
-    cl_file.close();
-
-    std::ofstream ce_file(out_centroids_file);
-    for (int i = 0; i < (int)centroids->size(); i++) {
-        ce_file << i;
-        for (int j = 0; j < (int)d.get_feature_num(); j++) {
-            ce_file << "," << (*(*centroids)[i])[j];
-        }
-        ce_file << "\n";
-    }
-    ce_file.close();
-}
-
 int main(int argc, char *argv[]) {
-    int max_iter = 10000, k = 4;
+    int max_iter = 10000, k = 4, verbose = 0;
     std::string in_file = "data/clustering.csv", out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
+    std::vector<int> features;
+    CSVParser p;
 
     if (argc > 1) {
-        max_iter = std::stoi(argv[1]);
+        k = std::stoi(argv[1]);
+        //TODO: Check > 1
     }
 
     if (argc > 2) {
-        k = std::stoi(argv[2]);
+        std::stringstream ss(argv[2]);
+        for (int i; ss >> i;) {
+            features.push_back(i);    
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+        //TODO: Check size > 1
     }
-
-    // if (argc > 2) {
-    //     in_file = argv[2];
-    // }
-
-    // if (argc > 3) {
-    //     in_file = argv[3];
-    // }
-
-    // if (argc > 4) {
-    //     in_file = argv[4];
-    // }
+    if (argc > 3) {
+        in_file = argv[3];
+    }
+    if (argc > 4) {
+        out_clusters_file = argv[4];
+    }
+    if (argc > 5) {
+        out_centroids_file = argv[5];
+    }
+    if (argc > 6) {
+        max_iter = std::stoi(argv[6]);
+    }
+    if (argc > 7) {
+        verbose = std::stoi(argv[7]);
+    }
     
-    std::vector<int> features = {6, 8}; //TODO Parametrize
-    
-    Dataset *dataset = create_dataset_from_csv(in_file, features);
-    std::vector<Record *> *centroids = new std::vector<Record *>;
-    std::cout << "Dataset read: " << dataset->get_feature_num() << " features for " << dataset->size() << " records\n";
+    std::cout << "Loading dataset from " << in_file << "\n";
+    Dataset *dataset = p.read_dataset(in_file, features);
+    std::cout << "\tDataset loaded: " << dataset->size() << " records with " << dataset->get_feature_num() << " features\n";
 
     std::cout << "Starting algorithm execution...\n";
-    bool res = kmeans(*dataset, centroids, k, max_iter);
-    std::cout << "Algorithm ended: " << res << "\n";
+    KMeans km = KMeans(k, max_iter);
+    bool res = km.cluster(*dataset);
+    if (res) {
+        std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations\n";
+    } else {
+        std::cout << "\tAlgorithm interrupted after exceeding max limit iterations: " << max_iter << " iterations\n";
+    }
     
-    std::cout << "Writing to file:\n";
-    write_csv(*dataset, centroids, out_clusters_file, out_centroids_file);
-    std::cout << "Operation succeded!\n";
+    std::cout << "Writing output files:\n";
+    p.write_cluster(*dataset, out_clusters_file);
+    std::cout << "\tClusters output wrote to " << out_clusters_file << "\n";
+    p.write_centroids(*dataset, km.get_centroids(), out_centroids_file);
+    std::cout << "\tCentroids output wrote to " << out_clusters_file << "\n";
+    std::cout << "Exiting...\n";
     return 0;
 }

@@ -8,10 +8,21 @@
 
 #include "kmeans.h"
 
-int compute_centroids(Dataset& data, std::vector<Record>& centroids, int k);
+class KMeans {
 
-bool kmeans(Dataset& data, std::vector<Record *> *centroids, int k, int max_iter);
-
-double calculate_cost(Dataset& data, std::vector<Record>& centroids);
+    public:
+        KMeans(int k, int max_iter);
+        bool cluster(Dataset& data);
+        double calculate_cost(Dataset& data);
+        void init_centroids(Dataset& data);
+        int update_centroids(Dataset& data);
+        std::vector<Record *> *get_centroids();
+        int get_iterations();
+    private:
+        int k;
+        int max_iter;
+        int iter;
+        std::vector<Record *> *centroids;
+};
 
 #endif

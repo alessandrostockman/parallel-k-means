@@ -2,8 +2,8 @@ IDIR=../include
 ODIR=obj
 
 CC=gcc
-LIBS=-lm -fopenmp -lstdc++
-CFLAGS=-I$(IDIR) -Wall -Wextra -pedantic 
+LIBS=-lm -lstdc++
+CFLAGS=-I$(IDIR) -Wall -Wextra -pedantic -fopenmp
 
 _DEPS = csv.h data.h kmeans.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))

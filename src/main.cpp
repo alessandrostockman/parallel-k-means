@@ -47,10 +47,15 @@ int main(int argc, char *argv[]) {
     std::cout << "\tDataset loaded: " << dataset->size() << " records with " << dataset->get_feature_num() << " features\n";
 
     std::cout << "Starting algorithm execution...\n";
+    clock_t begin = clock();
+
     KMeans km = KMeans(k, max_iter);
     bool res = km.fit(*dataset);
+
+    clock_t end = clock();
+    double duration = (double)(end - begin) / CLOCKS_PER_SEC;
     if (res) {
-        std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations\n";
+        std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations in " << duration << "ms\n";
     } else {
         std::cout << "\tAlgorithm interrupted after exceeding max limit iterations: " << max_iter << " iterations\n";
     }

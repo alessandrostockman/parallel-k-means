@@ -32,8 +32,22 @@ int compute_centroids(Dataset& data, std::vector<Record *> *centroids, int k) {
 }
 
 bool kmeans(Dataset& data, std::vector<Record *> *centroids, int k, int max_iter) {
+    std::vector<int> randoms;
+    bool found;
+
+    srand((unsigned int)time(NULL));
     for (int i = 0; i < k; i++) {
-        int rand_index = rand() % data.size();
+        int rand_index;
+        do {
+            rand_index = rand() % data.size();
+            found = false;
+            for (int j = 0; j < i && !found; j++) {
+                if (rand_index == randoms[j]) {
+                    found = true;
+                }
+            }
+        } while (found);
+        randoms.push_back(rand_index);
         Record *r = data[rand_index];
         Record *centroid = new Record(data.get_feature_num());
 

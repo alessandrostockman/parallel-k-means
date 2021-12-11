@@ -3,20 +3,20 @@
 
 #include <math.h>
 #include <vector>
+#include <iostream>
 
 class Record {
     public:
         Record(int length);
         Record(std::vector<double> *features);
         double operator[](std::size_t index);
-        bool operator==(Record other);
-        bool operator!=(Record other);
         std::vector<double> *get_features();
         void set_features(size_t index, double value);
         int get_cluster();
         void set_cluster(int cluster);
         double get_centroid_dist();
         void set_centroid_dist(double centroid_dist);
+        void reset_centroid_dist();
         double distance(Record r);
 
     private:
@@ -38,5 +38,11 @@ class Dataset {
         size_t feature_num;
         
 };
+
+std::ostream &operator<<(std::ostream &os, Record *r);
+
+bool operator==(Record& lhs, Record& rhs);
+
+bool operator!=(Record& lhs, Record& rhs);
 
 #endif

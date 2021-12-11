@@ -20,7 +20,6 @@ int compute_centroids(Dataset& data, std::vector<Record *> *centroids, int k) {
 
 
         for (int f = 0; f < (int)data.get_feature_num(); f++) {
-            // std::cout << mean_features[f] << " vs " << centroids[i][f] << " / " << cluster_size << "\n";
             mean_features.set_features(f, mean_features[f] / cluster_size);
         }
 
@@ -52,13 +51,13 @@ bool kmeans(Dataset& data, std::vector<Record *> *centroids, int k, int max_iter
 
         for (int i = 0; i < (int)data.size(); i++) {
             Record *r = data[i];
+            r->reset_centroid_dist();
             for (int j = 0; j < k; j++) {
                 double dist = (*centroids)[j]->distance(*r);
 
                 if (dist < r->get_centroid_dist()) {
                     r->set_centroid_dist(dist);
                     r->set_cluster(j);
-                    //std::cout << &data[i] << " " << &data[i] << "\n";
                 }
             }
         }

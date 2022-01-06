@@ -33,6 +33,8 @@ class KMeans {
         int max_iter;
         int iter;
         std::vector<Record *> *centroids;
+        std::vector<Record *> *cumulatives;
+        std::vector<double> *sizes;
         double total_times[TIMES_NUMBER] = {0};
         double start_times[TIMES_NUMBER] = {0};
 };

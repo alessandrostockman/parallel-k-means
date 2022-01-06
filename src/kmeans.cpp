@@ -8,7 +8,9 @@ KMeans::KMeans(int k, int max_iter) :
     k(k),
     max_iter(max_iter),
     iter(0),
-    centroids(new std::vector<Record *>) { }
+    centroids(new std::vector<Record *>),
+    cumulatives(new std::vector<Record *>),
+    sizes(new std::vector<double>) { }
 
 void KMeans::start_timer(int timer) {
     start_times[timer] = omp_get_wtime();
@@ -37,7 +39,6 @@ bool KMeans::fit(Dataset& data) {
         start_timer(TIME_RECLUSTERING);
 // #pragma omp parallel for
         for (int i = 0; i < (int)data.size(); i++) {
-            //std::cout << omp_get_thread_num() + 1 << " / " << omp_get_num_threads() << "\n";
             Record *r = data[i];
             r->reset_centroid_dist();
             for (int j = 0; j < k; j++) {
@@ -47,6 +48,13 @@ bool KMeans::fit(Dataset& data) {
                     r->set_centroid_dist(dist);
                     r->set_cluster(j);
                 }
+            }
+// #pragma omp critical
+            {
+                for (int f = 0; f < (int)data.get_feature_num(); f++) {
+                    (*(*cumulatives)[r->get_cluster()]).set_features(f, (*(*cumulatives)[r->get_cluster()])[f] + (*r)[f]);
+                }
+                (*sizes)[r->get_cluster()]++;
             }
         }
         end_timer(TIME_RECLUSTERING);
@@ -69,7 +77,7 @@ void KMeans::init_centroids(Dataset& data) {
     std::vector<int> randoms;
     bool found;
 
-    srand((unsigned int)time(NULL)); Uncomment for random behaviour
+    srand((unsigned int)time(NULL)); // Comment for reproduceable behaviour
     for (int i = 0; i < k; i++) {
         int rand_index;
         do {
@@ -90,6 +98,8 @@ void KMeans::init_centroids(Dataset& data) {
         }
         r->set_cluster(i);
         centroids->push_back(centroid);
+        cumulatives->push_back(new Record(data.get_feature_num()));
+        sizes->push_back(0);
     }
 }
 
@@ -97,23 +107,12 @@ int KMeans::update_centroids(Dataset& data) {
     int changes = 0;
     for (int i = 0; i < k; i++) {
         Record mean_features = Record(data.get_feature_num());
-        int cluster_size = 0;
-
-// #pragma omp parallel for
-        for (int j = 0; j < (int)data.size(); j++) {
-            Record *r = data[j];
-            if (r->get_cluster() == i) {
-                cluster_size++;
-                for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                    mean_features.set_features(f, mean_features[f] + (*r)[f]);
-                }
-            }
-        }
-
 
         for (int f = 0; f < (int)data.get_feature_num(); f++) {
-            mean_features.set_features(f, mean_features[f] / cluster_size);
+            mean_features.set_features(f, (*(*cumulatives)[i])[f] / (*sizes)[i]);
+            (*(*cumulatives)[i]).set_features(f, 0);
         }
+        (*sizes)[i] = 0;
 
         if ((*(*centroids)[i]) != mean_features) {
             changes++;

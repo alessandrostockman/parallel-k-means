@@ -88,7 +88,6 @@ void KMeans::init_centroids(Dataset& data) {
     std::vector<int> randoms;
     bool found;
 
-    srand((unsigned int)time(NULL)); // Comment for reproduceable behaviour
     for (int i = 0; i < k; i++) {
         int rand_index;
         do {

@@ -54,6 +54,11 @@ int main(int argc, char *argv[]) {
     if (has_argument(argv, argv+argc, "--log-interval")) {
         log_interval = std::stoi(get_argument(argv, argv + argc, "--log-interval"));
     }
+    if (has_argument(argv, argv+argc, "--seed")) {
+        srand(std::stoi(get_argument(argv, argv + argc, "--seed")));
+    } else {
+        srand((unsigned int)time(NULL));
+    }
     verbose = has_argument(argv, argv+argc, "--verbose");
     
     std::cout << "Loading dataset from " << in_file << "\n";

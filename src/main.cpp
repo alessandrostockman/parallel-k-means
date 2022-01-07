@@ -1,46 +1,60 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 #include "csv.h"
 #include "data.h"
 #include "kmeans.h"
 
+char* get_argument(char **begin, char **end, const std::string &option) {
+    char **itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end) {
+        return *itr;
+    }
+    return 0;
+}
+
+bool has_argument(char **begin, char **end, const std::string &option) {
+    return std::find(begin, end, option) != end;
+}
+
 int main(int argc, char *argv[]) {
-    int max_iter = 10000, k = 4, verbose = 0;
-    std::string in_file = "data/clustering.csv", out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
+    int max_iter = 10000, log_interval = 100, k;
+    bool verbose;
+    std::string in_file, out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
     std::vector<int> features;
     CSVParser p;
 
-    if (argc > 1) {
-        k = std::stoi(argv[1]);
-        //TODO: Check > 1
+    if (has_argument(argv, argv+argc, "--help") || argc < 4) {
+        //TODO: Write help
+        std::cout << "Usage: \nkmeans.exe ...\n"; 
+        return 0;
+    }
+    
+    k = std::stoi(argv[1]);
+    in_file = argv[2];
+
+    std::stringstream ss(argv[3]);
+    for (int i; ss >> i;) {
+        features.push_back(i);    
+        if (ss.peek() == ',')
+            ss.ignore();
     }
 
-    if (argc > 2) {
-        std::stringstream ss(argv[2]);
-        for (int i; ss >> i;) {
-            features.push_back(i);    
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
-        //TODO: Check size > 1
+    if (has_argument(argv, argv+argc, "--clusters-output")) {
+        out_clusters_file = get_argument(argv, argv + argc, "--clusters-output");
     }
-    if (argc > 3) {
-        in_file = argv[3];
+    if (has_argument(argv, argv+argc, "--centroids-output")) {
+        out_centroids_file = get_argument(argv, argv + argc, "--centroids-output");
     }
-    if (argc > 4) {
-        out_clusters_file = argv[4];
+    if (has_argument(argv, argv+argc, "--max-iter")) {
+        max_iter = std::stoi(get_argument(argv, argv + argc, "--max-iter"));
     }
-    if (argc > 5) {
-        out_centroids_file = argv[5];
+    if (has_argument(argv, argv+argc, "--log-interval")) {
+        log_interval = std::stoi(get_argument(argv, argv + argc, "--log-interval"));
     }
-    if (argc > 6) {
-        max_iter = std::stoi(argv[6]);
-    }
-    if (argc > 7) {
-        verbose = std::stoi(argv[7]);
-    }
+    verbose = has_argument(argv, argv+argc, "--verbose");
     
     std::cout << "Loading dataset from " << in_file << "\n";
     Dataset *dataset = p.read_dataset(in_file, features);
@@ -48,15 +62,12 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Starting algorithm execution...\n";
 
-    KMeans km = KMeans(k, max_iter);
+    KMeans km = KMeans(k, max_iter, verbose, log_interval);
     bool res = km.fit(*dataset);
 
     if (res) {
         std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations\n";
-        std::cout << "\tInitialization time: " << km.get_timer_count(TIME_INITIALIZATION) 
-            << "ms | Reclustering time: " << km.get_timer_count(TIME_RECLUSTERING) 
-            << "ms | Update time: " << km.get_timer_count(TIME_UPDATE)
-            << "ms | Total time: " << km.get_timer_count(TIME_TOTAL) << "ms\n";
+        std::cout << "\t" << km.get_times(TIMER_TOTAL) << "\n";
     } else {
         std::cout << "\tAlgorithm interrupted after exceeding max limit iterations: " << max_iter << " iterations\n";
     }

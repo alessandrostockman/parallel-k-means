@@ -2,11 +2,11 @@
 
 #include <omp.h>
 
-#define LOG_INTERVAL 1000 
-
-KMeans::KMeans(int k, int max_iter) : 
+KMeans::KMeans(int k, int max_iter, bool verbose, int log_interval) : 
     k(k),
     max_iter(max_iter),
+    verbose(verbose),
+    log_interval(log_interval),
     iter(0),
     centroids(new std::vector<Record *>),
     cumulatives(new std::vector<Record *>),
@@ -20,8 +20,18 @@ void KMeans::end_timer(int timer) {
     total_times[timer] += omp_get_wtime() - start_times[timer];
 }
 
-double KMeans::get_timer_count(int timer) {
+double KMeans::get_timer_value(int timer) {
     return total_times[timer] * 1000;
+}
+
+std::string KMeans::get_times(int type) {
+    std::string log = "Initialization time: " + std::to_string(get_timer_value(TIME_INITIALIZATION)) 
+        + "ms | Reclustering time: " + std::to_string(get_timer_value(TIME_RECLUSTERING)) 
+        + "ms | Update time: " + std::to_string(get_timer_value(TIME_UPDATE)) + "ms";
+        if (type == TIMER_TOTAL) {
+            log = log + " | Total time: " + std::to_string(get_timer_value(TIME_TOTAL)) + "ms";
+        }
+        return log;
 }
 
 bool KMeans::fit(Dataset& data) {
@@ -32,8 +42,9 @@ bool KMeans::fit(Dataset& data) {
     end_timer(TIME_INITIALIZATION);
 
     for (iter = 0; iter < max_iter; iter++) {
-        if (iter % LOG_INTERVAL == 0) {
-            std::cout << "Iteration #" << iter << "\n";
+        if (iter > 0 && iter % log_interval == 0 && verbose) {
+            std::cout << "Iteration #" << iter << "\t"
+                << get_times(TIMER_PARTIAL) << "\n";
         }
 
         start_timer(TIME_RECLUSTERING);

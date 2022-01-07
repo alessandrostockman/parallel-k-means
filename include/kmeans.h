@@ -24,9 +24,9 @@ class KMeans {
         KMeans(int k, int max_iter, bool verbose, int log_interval);
         bool fit(Dataset& data);
         double calculate_cost(Dataset& data);
-        void init_centroids(Dataset& data);
-        int update_centroids(Dataset& data);
+        void init_clusters(Dataset& data);
         void update_clusters(Dataset& data);
+        int update_centroids(Dataset& data);
         std::vector<Record *> *get_centroids();
         int get_iterations();
         void start_timer(int timer);

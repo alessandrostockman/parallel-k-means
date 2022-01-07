@@ -38,7 +38,7 @@ bool KMeans::fit(Dataset& data) {
     start_timer(TIME_TOTAL);
 
     start_timer(TIME_INITIALIZATION);
-    init_centroids(data);
+    init_clusters(data);
     end_timer(TIME_INITIALIZATION);
 
     for (iter = 0; iter < max_iter; iter++) {
@@ -65,22 +65,24 @@ bool KMeans::fit(Dataset& data) {
     return false;
 }
 
-void KMeans::init_centroids(Dataset& data) {
-    std::vector<int> randoms;
-    bool found;
+void KMeans::init_clusters(Dataset& data) {
+    std::vector<int> random_history;
+    bool duplicate;
 
     for (int i = 0; i < k; i++) {
         int rand_index;
         do {
             rand_index = rand() % data.size();
-            found = false;
-            for (int j = 0; j < i && !found; j++) {
-                if (rand_index == randoms[j]) {
-                    found = true;
+            duplicate = false;
+            for (int j = 0; j < i && !duplicate; j++) {
+                if (rand_index == random_history[j]) {
+                    duplicate = true;
                 }
             }
-        } while (found);
-        randoms.push_back(rand_index);
+        } while (duplicate);
+
+        random_history.push_back(rand_index);
+
         Record *r = data[rand_index];
         Record *centroid = new Record(data.get_feature_num());
 

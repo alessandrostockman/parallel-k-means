@@ -26,6 +26,7 @@ class KMeans {
         double calculate_cost(Dataset& data);
         void init_centroids(Dataset& data);
         int update_centroids(Dataset& data);
+        void update_clusters(Dataset& data);
         std::vector<Record *> *get_centroids();
         int get_iterations();
         void start_timer(int timer);

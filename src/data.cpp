@@ -64,7 +64,11 @@ bool operator==(Record& lhs, Record& rhs) {
     std::vector<double> l = *lhs.get_features(), r = *rhs.get_features();
 
     for (int i = 0; i < lsize; i++) {
-        if (l[i] != r[i]) {
+        double abs_l = fabs(l[i]);
+        double abs_r = fabs(r[i]);
+        float largest = (abs_l > abs_r) ? abs_l : abs_r;
+
+        if (fabs(l[i] - r[i]) > largest * FLT_EPSILON) {
             return false;
         }
     } 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Record::Record(int length) {
+Record::Record(size_t length) {
     features = (double *)malloc(sizeof(double) * length);
     cluster = -1;
     centroid_dist = __DBL_MAX__;
@@ -13,7 +13,7 @@ Record::Record(int length) {
     }
 }
 
-Record::Record(double *features, int length) : 
+Record::Record(double *features, size_t length) : 
     features(features), 
     cluster(-1),
     centroid_dist(__DBL_MAX__),
@@ -31,7 +31,7 @@ double *Record::get_features() {
     return features;
 }
 
-int Record::get_size() {
+size_t Record::get_size() {
     return size;
 }
 

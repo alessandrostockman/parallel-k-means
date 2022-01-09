@@ -9,9 +9,9 @@
 class Record {
     public:
         Record(int length);
-        Record(std::vector<double> *features);
+        Record(double *features, int length);
         double operator[](std::size_t index);
-        std::vector<double> *get_features();
+        double *get_features();
         void set_features(size_t index, double value);
         int get_cluster();
         void set_cluster(int cluster);
@@ -19,11 +19,13 @@ class Record {
         void set_centroid_dist(double centroid_dist);
         void reset_centroid_dist();
         double distance(Record r);
+        int get_size();
 
     private:
-        std::vector<double> *features;
+        double *features;
         int cluster;
         double centroid_dist;
+        int size;
 
 };
 

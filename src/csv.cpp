@@ -34,12 +34,12 @@ Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features)
         if (first_line) {
             first_line = false;
         } else {
-            std::vector<double> *f = new std::vector<double>;
+            double *f = (double *)malloc(sizeof(double) * feature_num);
             for (int i = 0; i < (int)features.size(); i++) {
                 double n = std::stod(row[features[i]]);
-                f->push_back(n);
+                f[i] = n;
             }
-            records->push_back(new Record(f));
+            records->push_back(new Record(f, feature_num));
         }
     }
 

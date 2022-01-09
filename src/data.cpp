@@ -3,26 +3,36 @@
 #include <iostream>
 
 Record::Record(int length) {
-    features = new std::vector<double>(length, 0.0);
+    features = (double *)malloc(sizeof(double) * length);
     cluster = -1;
     centroid_dist = __DBL_MAX__;
+    size = length;
+
+    for (int i = 0; i < length; i++) {
+        features[i] = 0;
+    }
 }
 
-Record::Record(std::vector<double> *features) : 
+Record::Record(double *features, int length) : 
     features(features), 
     cluster(-1),
-    centroid_dist(__DBL_MAX__) {}
+    centroid_dist(__DBL_MAX__),
+    size(length) {}
 
 double Record::operator[](std::size_t index) {
-    return (*features)[index];
+    return features[index];
 }
 
 void Record::set_features(size_t index, double value) {
-    (*features)[index] = value;
+    features[index] = value;
 }
 
-std::vector<double> *Record::get_features() {
+double *Record::get_features() {
     return features;
+}
+
+int Record::get_size() {
+    return size;
 }
 
 int Record::get_cluster() {
@@ -47,21 +57,21 @@ void Record::reset_centroid_dist() {
 
 double Record::distance(Record r) {
     double sum = 0;
-    for (int i = 0; i < (int)(*features).size(); i++) {
-        double num = ((*features)[i] - (*r.features)[i]);
+    for (int i = 0; i < (int)r.size; i++) {
+        double num = features[i] - r.features[i];
         sum += num * num;
     }
     return sqrt(sum);
 }
 
 bool operator==(Record& lhs, Record& rhs) { 
-    int lsize = lhs.get_features()->size();
-    int rsize = rhs.get_features()->size();
+    int lsize = lhs.get_size();
+    int rsize = rhs.get_size();
     if (lsize != rsize) {
         return false;
     }
 
-    std::vector<double> l = *lhs.get_features(), r = *rhs.get_features();
+    double *l = lhs.get_features(), *r = rhs.get_features();
 
     for (int i = 0; i < lsize; i++) {
         double abs_l = fabs(l[i]);
@@ -81,12 +91,12 @@ bool operator!=(Record& lhs, Record& rhs) {
 
 std::ostream &operator<<(std::ostream &os, Record *r) { 
     os << "<";
-    for (int i = 0; i < (int)r->get_features()->size(); i++) {
+    for (int i = 0; i < (int)r->get_size(); i++) {
         if (i > 0) {
             os << ", ";
         }
 
-        os << r->get_features()->at(i);
+        os << (*r)[i];
     }
     return os << ">";
 }

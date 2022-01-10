@@ -7,8 +7,9 @@ KMeans::KMeans(int k, int max_iter, bool verbose, int log_interval) :
     max_iter(max_iter),
     verbose(verbose),
     log_interval(log_interval),
-    iter(0),
-    centroids(new std::vector<Record *>) { }
+    iter(0) {
+        centroids = (Record *)malloc(sizeof(Record) * k);
+    }
 
 void KMeans::start_timer(int timer) {
     start_times[timer] = omp_get_wtime();
@@ -82,13 +83,13 @@ void KMeans::init_clusters(Dataset& data) {
         random_history.push_back(rand_index);
 
         Record *r = data[rand_index];
-        Record *centroid = new Record(data.get_feature_num());
+        Record centroid = Record(data.get_feature_num());
 
         for (int j = 0; j < (int)data.get_feature_num(); j++) {
-            centroid->set_features(j, (*r)[j]);
+            centroid.set_features(j, (*r)[j]);
         }
         r->set_cluster(i);
-        centroids->push_back(centroid);
+        centroids[i] = centroid;
     }
 }
 
@@ -98,7 +99,7 @@ void KMeans::update_clusters(Dataset& data) {
         Record *r = data[i];
         r->reset_centroid_dist();
         for (int j = 0; j < k; j++) {
-            double dist = (*centroids)[j]->distance(*r);
+            double dist = centroids[j].distance(*r);
 
             if (dist < r->get_centroid_dist()) {
                 r->set_centroid_dist(dist);
@@ -133,9 +134,9 @@ int KMeans::update_centroids(Dataset& data) {
             mean_features.set_features(f, cumulatives[i][f] / sizes[i]);
         }
 
-        if ((*(*centroids)[i]) != mean_features) {
+        if (centroids[i] != mean_features) {
             changes++;
-            (*centroids)[i] = new Record(mean_features);
+            centroids[i] = Record(mean_features);
         }
     }
     return changes;
@@ -145,12 +146,12 @@ double KMeans::calculate_cost(Dataset& data) {
     double sum = 0;
     for (int i = 0; i < (int)data.size(); i++) {
         Record *r = data[i];
-        sum += sqrt(r->distance(*(*centroids)[r->get_cluster()]));
+        sum += sqrt(r->distance(centroids[r->get_cluster()]));
     }
     return sum;
 }
 
-std::vector<Record *> *KMeans::get_centroids() {
+Record *KMeans::get_centroids() {
     return centroids;
 }
 

@@ -27,7 +27,7 @@ class KMeans {
         void init_clusters(Dataset& data);
         void update_clusters(Dataset& data);
         int update_centroids(Dataset& data);
-        std::vector<Record *> *get_centroids();
+        Record *get_centroids();
         int get_iterations();
         void start_timer(int timer);
         void end_timer(int timer);
@@ -39,7 +39,7 @@ class KMeans {
         bool verbose;
         int log_interval;
         int iter;
-        std::vector<Record *> *centroids;
+        Record *centroids;
         double total_times[TIMES_NUMBER] = {0};
         double start_times[TIMES_NUMBER] = {0};
         double end_times[TIMES_NUMBER] = {0};

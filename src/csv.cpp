@@ -11,12 +11,12 @@ void CSVParser::write_cluster(Dataset d, std::string out_file) {
     cl_file.close();
 }
 
-void CSVParser::write_centroids(Dataset d, std::vector<Record *> *centroids, std::string out_file) {
+void CSVParser::write_centroids(Dataset d, Record *centroids, std::string out_file) {
     std::ofstream ce_file(out_file);
-    for (int i = 0; i < (int)centroids->size(); i++) {
+    for (int i = 0; i < 5; i++) {
         ce_file << i;
         for (int j = 0; j < (int)d.get_feature_num(); j++) {
-            ce_file << "," << (*(*centroids)[i])[j];
+            ce_file << "," << centroids[i][j];
         }
         ce_file << "\n";
     }

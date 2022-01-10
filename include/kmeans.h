@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <omp.h>
 
 #include "kmeans.h"
 
@@ -18,10 +19,15 @@
 #define TIMER_TOTAL 0
 #define TIMER_PARTIAL 1
 
+#define MODE_K_MEANS 0
+#define MODE_K_MEDIANS 1
+#define MODE_K_MEDOIDS 2
+#define MODE_K_MEANS_PP 3
+
 class KMeans {
 
     public:
-        KMeans(int k, int max_iter, bool verbose, int log_interval);
+        KMeans(int k, int mode, int max_iter, bool verbose, int log_interval);
         bool fit(Dataset& data);
         double calculate_cost(Dataset& data);
         void init_clusters(Dataset& data);
@@ -35,6 +41,7 @@ class KMeans {
         std::string get_times(int type);
     private:
         int k;
+        int mode;
         int max_iter;
         bool verbose;
         int log_interval;

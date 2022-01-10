@@ -1,9 +1,8 @@
 #include "kmeans.h"
 
-#include <omp.h>
-
-KMeans::KMeans(int k, int max_iter, bool verbose, int log_interval) : 
+KMeans::KMeans(int k, int mode, int max_iter, bool verbose, int log_interval) : 
     k(k),
+    mode(mode),
     max_iter(max_iter),
     verbose(verbose),
     log_interval(log_interval),
@@ -67,7 +66,7 @@ bool KMeans::fit(Dataset& data) {
 void KMeans::init_clusters(Dataset& data) {
     std::vector<int> random_history;
     bool duplicate;
-
+    
     for (int i = 0; i < k; i++) {
         int rand_index;
         do {
@@ -108,6 +107,44 @@ void KMeans::update_clusters(Dataset& data) {
         }
     }
 }
+
+// double median(int n, std::vector<int> a) {
+//     // If size of the arr[] is even
+//     if (n % 2 == 0) {
+  
+//         // Applying std::nth_element
+//         // on n/2th index
+//         std::nth_element(a.begin(),
+//                     a.begin() + n / 2,
+//                     a.end());
+  
+//         // Applying std::nth_element
+//         // on (n-1)/2 th index
+//         std::nth_element(a.begin(),
+//                     a.begin() + (n - 1) / 2,
+//                     a.end());
+  
+//         // Find the average of value at
+//         // index N/2 and (N-1)/2
+//         return (double)(a[(n - 1) / 2]
+//                         + a[n / 2])
+//                / 2.0;
+//     }
+  
+//     // If size of the arr[] is odd
+//     else {
+  
+//         // Applying std::nth_element
+//         // on n/2
+//         std::nth_element(a.begin(),
+//                     a.begin() + n / 2,
+//                     a.end());
+  
+//         // Value at index (N/2)th
+//         // is the median
+//         return (double)a[n / 2];
+//     }
+// }
 
 int KMeans::update_centroids(Dataset& data) {
     int changes = 0;

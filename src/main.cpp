@@ -20,13 +20,13 @@ bool has_argument(char **begin, char **end, const std::string &option) {
 }
 
 int main(int argc, char *argv[]) {
-    int max_iter = 10000, log_interval = 100, k;
+    int max_iter = 10000, log_interval = 100, k, mode;
     bool verbose;
     std::string in_file, out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
     std::vector<int> features;
     CSVParser p;
 
-    if (has_argument(argv, argv+argc, "--help") || argc < 4) {
+    if (has_argument(argv, argv+argc, "--help") || argc < 4 || !has_argument(argv, argv+argc, "--mode")) {
         //TODO: Write help
         std::cout << "Usage: \nkmeans.exe ...\n"; 
         return 0;
@@ -41,6 +41,8 @@ int main(int argc, char *argv[]) {
         if (ss.peek() == ',')
             ss.ignore();
     }
+
+    mode = std::stoi(get_argument(argv, argv + argc, "--mode"));
 
     if (has_argument(argv, argv+argc, "--clusters-output")) {
         out_clusters_file = get_argument(argv, argv + argc, "--clusters-output");
@@ -67,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Starting algorithm execution...\n";
 
-    KMeans km = KMeans(k, max_iter, verbose, log_interval);
+    KMeans km = KMeans(k, mode, max_iter, verbose, log_interval);
     bool res = km.fit(*dataset);
 
     if (res) {

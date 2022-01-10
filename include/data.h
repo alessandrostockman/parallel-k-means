@@ -18,27 +18,28 @@ class Record {
         double get_centroid_dist();
         void set_centroid_dist(double centroid_dist);
         void reset_centroid_dist();
-        size_t get_size();
+        size_t size();
         double distance(Record r);
 
     private:
         double *features;
         int cluster;
         double centroid_dist;
-        size_t size;
+        size_t length;
 
 };
 
 class Dataset {
     public:
-        Dataset(std::vector<Record *> *records, size_t feature_num);
-        Record *operator[](std::size_t index);
-        std::size_t size();
-        std::size_t get_feature_num();
+        Dataset(std::vector<Record *> records_vect, size_t feature_num);
+        Record *operator[](size_t index);
+        size_t size();
+        size_t get_feature_num();
 
     private:
-        std::vector<Record *> *records;
+        Record *records;
         size_t feature_num;
+        size_t length;
         
 };
 

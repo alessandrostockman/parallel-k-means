@@ -26,7 +26,7 @@ void CSVParser::write_centroids(Dataset d, std::vector<Record *> *centroids, std
 Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features) {
     CSVRow row;
     std::ifstream file(in_file);
-    std::vector<Record *> *records = new std::vector<Record *>;
+    std::vector<Record *> records = std::vector<Record *>();
     int feature_num = features.size();
 
     bool first_line = true;
@@ -39,7 +39,7 @@ Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features)
                 double n = std::stod(row[features[i]]);
                 f[i] = n;
             }
-            records->push_back(new Record(f, feature_num));
+            records.push_back(new Record(f, feature_num));
         }
     }
 

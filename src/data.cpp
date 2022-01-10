@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-Record::Record(size_t length) {
+Record::Record(size_t length) :
+    length(length) {
     features = (double *)malloc(sizeof(double) * length);
     cluster = -1;
     centroid_dist = __DBL_MAX__;
-    size = length;
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < (int)length; i++) {
         features[i] = 0;
     }
 }
@@ -17,9 +17,9 @@ Record::Record(double *features, size_t length) :
     features(features), 
     cluster(-1),
     centroid_dist(__DBL_MAX__),
-    size(length) {}
+    length(length) {}
 
-double Record::operator[](std::size_t index) {
+double Record::operator[](size_t index) {
     return features[index];
 }
 
@@ -31,8 +31,8 @@ double *Record::get_features() {
     return features;
 }
 
-size_t Record::get_size() {
-    return size;
+size_t Record::size() {
+    return length;
 }
 
 int Record::get_cluster() {
@@ -57,16 +57,16 @@ void Record::reset_centroid_dist() {
 
 double Record::distance(Record r) {
     double sum = 0;
-    for (int i = 0; i < (int)r.size; i++) {
+    for (int i = 0; i < (int)r.size(); i++) {
         double num = features[i] - r.features[i];
         sum += num * num;
     }
     return sqrt(sum);
 }
 
-bool operator==(Record& lhs, Record& rhs) { 
-    int lsize = lhs.get_size();
-    int rsize = rhs.get_size();
+bool operator==(Record& lhs, Record& rhs) {
+    int lsize = lhs.size();
+    int rsize = rhs.size();
     if (lsize != rsize) {
         return false;
     }
@@ -91,7 +91,7 @@ bool operator!=(Record& lhs, Record& rhs) {
 
 std::ostream &operator<<(std::ostream &os, Record *r) { 
     os << "<";
-    for (int i = 0; i < (int)r->get_size(); i++) {
+    for (int i = 0; i < (int)r->size(); i++) {
         if (i > 0) {
             os << ", ";
         }
@@ -101,18 +101,24 @@ std::ostream &operator<<(std::ostream &os, Record *r) {
     return os << ">";
 }
 
-Dataset::Dataset(std::vector<Record *> *records, size_t feature_num) : 
-    records(records),
-    feature_num(feature_num) {}
+Dataset::Dataset(std::vector<Record *> records_vect, size_t features) {
+        length = (size_t)records_vect.size();
+        records = (Record *)malloc(sizeof(Record) * length);
+        feature_num = features;
 
-Record *Dataset::operator[](std::size_t index) {
-    return (*records)[index];
+        for (int i = 0; i < (int)length; i++) {
+            records[i] = *records_vect[i];
+        }
+    }
+
+Record *Dataset::operator[](size_t index) {
+    return &(records[index]);
 }
 
-std::size_t Dataset::get_feature_num() {
+size_t Dataset::get_feature_num() {
     return feature_num;
 }
 
-std::size_t Dataset::size() {
-    return records->size();
+size_t Dataset::size() {
+    return length;
 }

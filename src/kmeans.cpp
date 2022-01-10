@@ -8,9 +8,7 @@ KMeans::KMeans(int k, int max_iter, bool verbose, int log_interval) :
     verbose(verbose),
     log_interval(log_interval),
     iter(0),
-    centroids(new std::vector<Record *>),
-    cumulatives(new std::vector<Record *>),
-    sizes(new std::vector<double>) { }
+    centroids(new std::vector<Record *>) { }
 
 void KMeans::start_timer(int timer) {
     start_times[timer] = omp_get_wtime();
@@ -91,13 +89,11 @@ void KMeans::init_clusters(Dataset& data) {
         }
         r->set_cluster(i);
         centroids->push_back(centroid);
-        cumulatives->push_back(new Record(data.get_feature_num()));
-        sizes->push_back(0);
     }
 }
 
 void KMeans::update_clusters(Dataset& data) {
-// #pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < (int)data.size(); i++) {
         Record *r = data[i];
         r->reset_centroid_dist();
@@ -109,26 +105,33 @@ void KMeans::update_clusters(Dataset& data) {
                 r->set_cluster(j);
             }
         }
-// #pragma omp critical
-        {
-            for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                (*(*cumulatives)[r->get_cluster()]).set_features(f, (*(*cumulatives)[r->get_cluster()])[f] + (*r)[f]);
-            }
-            (*sizes)[r->get_cluster()]++;
-        }
     }
 }
 
 int KMeans::update_centroids(Dataset& data) {
     int changes = 0;
+    int *sizes = (int *)malloc(sizeof(int) * k);
+    Record *cumulatives = (Record *)malloc(sizeof(Record) * k);
+
+    for (int i = 0; i < k; i++) {
+        sizes[i] = 0;
+        cumulatives[i] = Record(data.get_feature_num());
+    }
+
+    for (int i = 0; i < (int)data.size(); i++) {
+        Record *r = data[i];
+        for (int f = 0; f < (int)data.get_feature_num(); f++) {
+            cumulatives[r->get_cluster()].set_features(f, cumulatives[r->get_cluster()][f] + (*r)[f]);
+        }
+        sizes[r->get_cluster()]++;
+    }
+    
     for (int i = 0; i < k; i++) {
         Record mean_features = Record(data.get_feature_num());
 
         for (int f = 0; f < (int)data.get_feature_num(); f++) {
-            mean_features.set_features(f, (*(*cumulatives)[i])[f] / (*sizes)[i]);
-            (*(*cumulatives)[i]).set_features(f, 0);
+            mean_features.set_features(f, cumulatives[i][f] / sizes[i]);
         }
-        (*sizes)[i] = 0;
 
         if ((*(*centroids)[i]) != mean_features) {
             changes++;

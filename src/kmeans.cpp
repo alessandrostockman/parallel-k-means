@@ -67,29 +67,76 @@ bool KMeans::fit(Dataset& data) {
 void KMeans::init_clusters(Dataset& data) {
     std::vector<int> random_history;
     bool duplicate;
+
+    if (mode != MODE_K_MEANS_PP) {
+        for (int i = 0; i < k; i++) {
+            int rand_index;
+            do {
+                rand_index = rand() % data.size();
+                duplicate = false;
+                for (int j = 0; j < i && !duplicate; j++) {
+                    if (rand_index == random_history[j]) {
+                        duplicate = true;
+                    }
+                }
+            } while (duplicate);
+
+            random_history.push_back(rand_index);
+
+            Record *r = data[rand_index];
+            Record centroid = Record(data.get_feature_num());
+
+            for (int j = 0; j < (int)data.get_feature_num(); j++) {
+                centroid.set_features(j, (*r)[j]);
+            }
+            r->set_cluster(i);
+            centroids[i] = centroid;
+        }
+    } else {
+        /* Pick the first cluster centroids at random. */
+        centroids[0] = *data[rand() % data.size()];
+        double sum;
     
-    for (int i = 0; i < k; i++) {
-        int rand_index;
-        do {
-            rand_index = rand() % data.size();
-            duplicate = false;
-            for (int j = 0; j < i && !duplicate; j++) {
-                if (rand_index == random_history[j]) {
-                    duplicate = true;
+    
+        /* Select the centroids for the remaining clusters. */
+        for (int cluster = 1; cluster < k; cluster++) {
+    
+            /* For each data point find the nearest centroid, save its
+            distance in the distance array, then add it to the sum of
+            total distance. */
+            sum = 0.0;
+            for (int j = 0; j < data.size(); j++ ) {
+                int i;
+                double d, min_d;
+            
+                min_d = HUGE_VAL;
+                for (i = 0; i < cluster; i++) {
+                    d = data[j]->distance(centroids[i]);
+                    if ( d < min_d ) {
+                        min_d = d;
+                    }
+                }
+            
+                data[j]->set_centroid_dist(min_d);
+                sum += min_d;
+            }
+    
+            /* Find a random distance within the span of the total distance. */
+            sum = sum * rand() / (RAND_MAX - 1);
+    
+            /* Assign the centroids. the point with the largest distance
+                will have a greater probability of being selected. */
+            for (int j = 0; j < data.size(); j++ ) {
+                sum -= data[j]->get_centroid_dist();
+                if (sum <= 0) {
+                    centroids[cluster] = *data[j];
+                    break;
                 }
             }
-        } while (duplicate);
-
-        random_history.push_back(rand_index);
-
-        Record *r = data[rand_index];
-        Record centroid = Record(data.get_feature_num());
-
-        for (int j = 0; j < (int)data.get_feature_num(); j++) {
-            centroid.set_features(j, (*r)[j]);
         }
-        r->set_cluster(i);
-        centroids[i] = centroid;
+    
+        /* Assign each observation the index of it's nearest cluster centroid. */
+        update_clusters(data);
     }
 }
 
@@ -109,46 +156,9 @@ void KMeans::update_clusters(Dataset& data) {
     }
 }
 
-// double median(int n, std::vector<int> a) {
-//     // If size of the arr[] is even
-//     if (n % 2 == 0) {
-  
-//         // Applying std::nth_element
-//         // on n/2th index
-//         std::nth_element(a.begin(),
-//                     a.begin() + n / 2,
-//                     a.end());
-  
-//         // Applying std::nth_element
-//         // on (n-1)/2 th index
-//         std::nth_element(a.begin(),
-//                     a.begin() + (n - 1) / 2,
-//                     a.end());
-  
-//         // Find the average of value at
-//         // index N/2 and (N-1)/2
-//         return (double)(a[(n - 1) / 2]
-//                         + a[n / 2])
-//                / 2.0;
-//     }
-  
-//     // If size of the arr[] is odd
-//     else {
-  
-//         // Applying std::nth_element
-//         // on n/2
-//         std::nth_element(a.begin(),
-//                     a.begin() + n / 2,
-//                     a.end());
-  
-//         // Value at index (N/2)th
-//         // is the median
-//         return (double)a[n / 2];
-//     }
-// }
-
 int KMeans::update_centroids(Dataset& data) {
     int changes = 0;
+
     int *sizes = (int *)malloc(sizeof(int) * k);
     Record *cumulatives = (Record *)malloc(sizeof(Record) * k);
 

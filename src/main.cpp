@@ -27,24 +27,28 @@ int main(int argc, char *argv[]) {
     std::vector<int> features;
     CSVParser p;
 
-    if (has_argument(argv, argv+argc, "--help") || argc < 4 || !has_argument(argv, argv+argc, "--mode")) {
-        std::cout << "Usage: kmeans.exe --mode M [--parallel] [--clusters-output F] [--centroids-output F] [--max-iter N] [--verbose] [--log-interval N] [--seed N] [--help]\nOptions:\n"; 
+    if (has_argument(argv, argv+argc, "--help") || !has_argument(argv, argv+argc, "--k") || !has_argument(argv, argv+argc, "--input") || !has_argument(argv, argv+argc, "--cols") || !has_argument(argv, argv+argc, "--mode")) {
+        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --cols INPUT_COLS --mode MODE [--parallel] \n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
+        std::cout << "Options:\n"; 
+        std::cout << "\t--k                 | Number of clusters\n";
+        std::cout << "\t--input             | Path of the input file dataset in csv format\n";
+        std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`)\n";
         std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
         std::cout << "\t--parallel          | Enables parallel execution\n";
-        std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: " << out_clusters_file << ")\n";
-        std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: " << out_centroids_file << ")\n";
-        std::cout << "\t--max-iter          | Maximum number of iterations after which the program is stopped  (Default: " << max_iter << ")\n";
+        std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: `" << out_clusters_file << "`)\n";
+        std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: `" << out_centroids_file << "`)\n";
+        std::cout << "\t--max-iter          | Maximum number of iterations after which the program is stopped  (Default: `" << max_iter << "`)\n";
         std::cout << "\t--verbose           | If present, the program prints periodically statistics on execution times\n";
-        std::cout << "\t--log-interval      | Number of iterations between logs if verbose mode is enabled (Default: " << log_interval << ")\n";
+        std::cout << "\t--log-interval      | Number of iterations between logs if verbose mode is enabled (Default: `" << log_interval << "`)\n";
         std::cout << "\t--seed              | Sets a seed for deterministic execution\n";
         std::cout << "\t--help              | Shows this message\n";
         return 0;
     }
     
-    k = std::stoi(argv[1]);
-    in_file = argv[2];
+    k = std::stoi(get_argument(argv, argv + argc, "--k"));
+    in_file = get_argument(argv, argv + argc, "--input");
 
-    std::stringstream ss(argv[3]);
+    std::stringstream ss(get_argument(argv, argv + argc, "--cols"));
     for (int i; ss >> i;) {
         features.push_back(i);    
         if (ss.peek() == ',')

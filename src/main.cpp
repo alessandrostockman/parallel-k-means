@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <omp.h>
 
 #include "csv.h"
 #include "data.h"
@@ -21,7 +22,7 @@ bool has_argument(char **begin, char **end, const std::string &option) {
 
 int main(int argc, char *argv[]) {
     int max_iter = 10000, log_interval = 100, k, mode;
-    bool verbose;
+    bool verbose, parallel;
     std::string in_file, out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
     std::vector<int> features;
     CSVParser p;
@@ -61,6 +62,8 @@ int main(int argc, char *argv[]) {
     } else {
         srand((unsigned int)time(NULL));
     }
+    
+    parallel = has_argument(argv, argv+argc, "--parallel");
     verbose = has_argument(argv, argv+argc, "--verbose");
     
     std::cout << "Loading dataset from " << in_file << "\n";
@@ -69,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Starting algorithm execution...\n";
 
-    KMeans km = KMeans(k, mode, max_iter, verbose, log_interval);
+    KMeans km = KMeans(k, mode, max_iter, parallel, verbose, log_interval);
     bool res = km.fit(*dataset);
 
     if (res) {

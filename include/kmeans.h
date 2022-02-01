@@ -27,7 +27,7 @@
 class KMeans {
 
     public:
-        KMeans(int k, int mode, int max_iter, bool verbose, int log_interval);
+        KMeans(int k, int mode, int max_iter, bool parallel, bool verbose, int log_interval);
         bool fit(Dataset& data);
         double calculate_cost(Dataset& data);
         void init_clusters(Dataset& data);
@@ -43,6 +43,7 @@ class KMeans {
         int k;
         int mode;
         int max_iter;
+        bool parallel;
         bool verbose;
         int log_interval;
         int iter;

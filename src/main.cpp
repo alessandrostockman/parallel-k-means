@@ -28,8 +28,16 @@ int main(int argc, char *argv[]) {
     CSVParser p;
 
     if (has_argument(argv, argv+argc, "--help") || argc < 4 || !has_argument(argv, argv+argc, "--mode")) {
-        //TODO: Write help
-        std::cout << "Usage: \nkmeans.exe ...\n"; 
+        std::cout << "Usage: kmeans.exe --mode M [--parallel] [--clusters-output F] [--centroids-output F] [--max-iter N] [--verbose] [--log-interval N] [--seed N] [--help]\nOptions:\n"; 
+        std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
+        std::cout << "\t--parallel          | Enables parallel execution\n";
+        std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: " << out_clusters_file << ")\n";
+        std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: " << out_centroids_file << ")\n";
+        std::cout << "\t--max-iter          | Maximum number of iterations after which the program is stopped  (Default: " << max_iter << ")\n";
+        std::cout << "\t--verbose           | If present, the program prints periodically statistics on execution times\n";
+        std::cout << "\t--log-interval      | Number of iterations between logs if verbose mode is enabled (Default: " << log_interval << ")\n";
+        std::cout << "\t--seed              | Sets a seed for deterministic execution\n";
+        std::cout << "\t--help              | Shows this message\n";
         return 0;
     }
     

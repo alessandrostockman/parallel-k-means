@@ -5,7 +5,7 @@
 #include <omp.h>
 
 #include "csv.h"
-#include "data.h"
+#include "dataset.h"
 #include "kmeans.h"
 
 char* get_argument(char **begin, char **end, const std::string &option) {

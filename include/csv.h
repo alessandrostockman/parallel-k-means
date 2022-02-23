@@ -8,7 +8,8 @@
 #include <vector>
 #include <string>
 
-#include "data.h"
+#include "dataset.h"
+#include "record.h"
 
 class CSVParser {
     public:

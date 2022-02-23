@@ -1,14 +1,13 @@
 #ifndef H_KMEANS
 #define H_KMEANS
 
-#include "data.h"
-
 #include <iostream>
 #include <algorithm>
 #include <math.h>
 #include <omp.h>
 
-#include "kmeans.h"
+#include "dataset.h"
+#include "record.h"
 
 #define TIMES_NUMBER 4
 

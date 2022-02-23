@@ -1,5 +1,5 @@
-#ifndef H_DATA
-#define H_DATA
+#ifndef H_RECORD
+#define H_RECORD
 
 #include <math.h>
 #include <vector>
@@ -27,20 +27,6 @@ class Record {
         double centroid_dist;
         size_t length;
 
-};
-
-class Dataset {
-    public:
-        Dataset(std::vector<Record *> records_vect, size_t feature_num);
-        Record *operator[](size_t index);
-        size_t size();
-        size_t get_feature_num();
-
-    private:
-        Record *records;
-        size_t feature_num;
-        size_t length;
-        
 };
 
 std::ostream &operator<<(std::ostream &os, Record *r);

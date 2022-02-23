@@ -105,7 +105,7 @@ void KMeans::init_clusters(Dataset& data) {
             distance in the distance array, then add it to the sum of
             total distance. */
             sum = 0.0;
-            for (int j = 0; j < data.size(); j++ ) {
+            for (int j = 0; j < (int)data.size(); j++ ) {
                 int i;
                 double d, min_d;
             
@@ -126,7 +126,7 @@ void KMeans::init_clusters(Dataset& data) {
     
             /* Assign the centroids. the point with the largest distance
                 will have a greater probability of being selected. */
-            for (int j = 0; j < data.size(); j++ ) {
+            for (int j = 0; j < (int)data.size(); j++ ) {
                 sum -= data[j]->get_centroid_dist();
                 if (sum <= 0) {
                     centroids[cluster] = *data[j];
@@ -205,7 +205,7 @@ int KMeans::update_centroids(Dataset& data) {
         for (int i = 0; i < k; i++) {
             temps[i] = (double **)malloc(sizeof(double *) * data.get_feature_num());
 
-            for (int j = 0; j < data.get_feature_num(); j++) {
+            for (int j = 0; j < (int)data.get_feature_num(); j++) {
                 temps[i][j] = (double *)malloc(sizeof(double) * sizes[i]);
             }
         }

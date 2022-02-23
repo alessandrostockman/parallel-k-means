@@ -159,32 +159,75 @@ void KMeans::update_clusters(Dataset& data) {
 int KMeans::update_centroids(Dataset& data) {
     int changes = 0;
 
-    int *sizes = (int *)malloc(sizeof(int) * k);
-    Record *cumulatives = (Record *)malloc(sizeof(Record) * k);
+    if (mode != MODE_K_MEDIANS) {
+        int *sizes = (int *)malloc(sizeof(int) * k);
+        Record *cumulatives = (Record *)malloc(sizeof(Record) * k);
 
-    for (int i = 0; i < k; i++) {
-        sizes[i] = 0;
-        cumulatives[i] = Record(data.get_feature_num());
-    }
-
-    for (int i = 0; i < (int)data.size(); i++) {
-        Record *r = data[i];
-        for (int f = 0; f < (int)data.get_feature_num(); f++) {
-            cumulatives[r->get_cluster()].set_features(f, cumulatives[r->get_cluster()][f] + (*r)[f]);
-        }
-        sizes[r->get_cluster()]++;
-    }
-    
-    for (int i = 0; i < k; i++) {
-        Record mean_features = Record(data.get_feature_num());
-
-        for (int f = 0; f < (int)data.get_feature_num(); f++) {
-            mean_features.set_features(f, cumulatives[i][f] / sizes[i]);
+        for (int i = 0; i < k; i++) {
+            sizes[i] = 0;
+            cumulatives[i] = Record(data.get_feature_num());
         }
 
-        if (centroids[i] != mean_features) {
-            changes++;
-            centroids[i] = Record(mean_features);
+        for (int i = 0; i < (int)data.size(); i++) {
+            Record *r = data[i];
+            for (int f = 0; f < (int)data.get_feature_num(); f++) {
+                cumulatives[r->get_cluster()].set_features(f, cumulatives[r->get_cluster()][f] + (*r)[f]);
+            }
+            sizes[r->get_cluster()]++;
+        }
+        
+        for (int i = 0; i < k; i++) {
+            Record mean_features = Record(data.get_feature_num());
+
+            for (int f = 0; f < (int)data.get_feature_num(); f++) {
+                mean_features.set_features(f, cumulatives[i][f] / sizes[i]);
+            }
+
+            if (centroids[i] != mean_features) {
+                changes++;
+                centroids[i] = Record(mean_features);
+            }
+        }
+    } else {
+        int *sizes = (int *)malloc(sizeof(int) * k);
+        double ***temps = (double ***)malloc(sizeof(double **) * k);
+        int *counters = (int *)malloc(sizeof(int) * k);
+        for (int i = 0; i < k; i++) {
+            sizes[i] = 0;
+            counters[i] = 0;
+        }
+        
+        for (int i = 0; i < (int)data.size(); i++) {
+            Record *r = data[i];
+            sizes[r->get_cluster()]++;
+        }
+
+        for (int i = 0; i < k; i++) {
+            temps[i] = (double **)malloc(sizeof(double *) * data.get_feature_num());
+
+            for (int j = 0; j < data.get_feature_num(); j++) {
+                temps[i][j] = (double *)malloc(sizeof(double) * sizes[i]);
+            }
+        }
+        for (int i = 0; i < (int)data.size(); i++) {
+            Record *r = data[i];
+            for (int f = 0; f < (int)data.get_feature_num(); f++) {
+                temps[r->get_cluster()][f][counters[r->get_cluster()]] = (*r)[f];
+            }
+            counters[r->get_cluster()]++;
+        }
+
+        for (int i = 0; i < k; i++) {
+            Record med = Record(data.get_feature_num());
+            for (int f = 0; f < (int)data.get_feature_num(); f++) {
+                std::sort(temps[i][f], temps[i][f] + sizes[i]);
+                med.set_features(f, sizes[i] % 2 != 0 ? temps[i][f][(int)sizes[i] / 2] : (temps[i][f][sizes[i] / 2] + temps[i][f][(sizes[i] - 1) / 2]) / 2);
+            }
+
+            if (centroids[i] != med) {
+                changes++;
+                centroids[i] = med;
+            }
         }
     }
     return changes;

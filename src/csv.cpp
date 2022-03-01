@@ -3,6 +3,7 @@
 void CSVParser::write_cluster(Dataset d, std::string out_file) {
     std::ofstream cl_file(out_file);
     for (int i = 0; i < (int)d.size(); i++) {
+        // For each data point append to the file stream each feature taken into consideration and the assigned cluster
         for (int j = 0; j < (int)d.get_feature_num(); j++) {
             cl_file << (*d[i])[j] << ",";
         }
@@ -14,6 +15,7 @@ void CSVParser::write_cluster(Dataset d, std::string out_file) {
 void CSVParser::write_centroids(Dataset d, Record *centroids, std::string out_file) {
     std::ofstream ce_file(out_file);
     for (int i = 0; i < 5; i++) {
+        // For each cluster append to the file stream the features of its centroid
         ce_file << i;
         for (int j = 0; j < (int)d.get_feature_num(); j++) {
             ce_file << "," << centroids[i][j];
@@ -31,6 +33,7 @@ Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features)
 
     bool first_line = true;
     while(file >> row) {
+        // For each row in the input stream reads the comma separated values indexed by the items in the features vector
         if (first_line) {
             first_line = false;
         } else {
@@ -65,7 +68,7 @@ void CSVRow::readNextRow(std::istream& str) {
         m_data.emplace_back(pos);
         ++pos;
     }
-    // This checks for a trailing comma with no data after it.
+    // Check for a trailing comma with no data after it
     pos = m_line.size();
     m_data.emplace_back(pos);
 }

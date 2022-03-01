@@ -44,6 +44,8 @@ int main(int argc, char *argv[]) {
         std::cout << "\t--help              | Shows this message\n";
         return 0;
     }
+
+    // Reading of all the command line arguments
     
     k = std::stoi(get_argument(argv, argv + argc, "--k"));
     in_file = get_argument(argv, argv + argc, "--input");
@@ -78,15 +80,17 @@ int main(int argc, char *argv[]) {
     parallel = has_argument(argv, argv+argc, "--parallel");
     verbose = has_argument(argv, argv+argc, "--verbose");
     
+    // Dataset loading
     std::cout << "Loading dataset from " << in_file << "\n";
     Dataset *dataset = p.read_dataset(in_file, features);
     std::cout << "\tDataset loaded: " << dataset->size() << " records with " << dataset->get_feature_num() << " features\n";
 
+    // Algorithm execution
     std::cout << "Starting algorithm execution...\n";
-
     KMeans km = KMeans(k, mode, max_iter, parallel, verbose, log_interval);
     bool res = km.fit(*dataset);
 
+    // Prints result depending on returning value of the fit method 
     if (res) {
         std::cout << "\tAlgorithm successfully finished after " << km.get_iterations() << " iterations\n";
         std::cout << "\t" << km.get_times(TIMER_TOTAL) << "\n";
@@ -94,6 +98,7 @@ int main(int argc, char *argv[]) {
         std::cout << "\tAlgorithm interrupted after exceeding max limit iterations: " << max_iter << " iterations\n";
     }
     
+    // Output writing
     std::cout << "Writing output files:\n";
     p.write_cluster(*dataset, out_clusters_file);
     std::cout << "\tClusters output wrote to " << out_clusters_file << "\n";

@@ -27,13 +27,13 @@ int main(int argc, char *argv[]) {
     std::vector<int> features;
     CSVParser p;
 
-    if (has_argument(argv, argv+argc, "--help") || !has_argument(argv, argv+argc, "--k") || !has_argument(argv, argv+argc, "--input") || !has_argument(argv, argv+argc, "--cols") || !has_argument(argv, argv+argc, "--mode")) {
-        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --cols INPUT_COLS --mode MODE [--parallel] \n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
+    if (has_argument(argv, argv+argc, "--help") || !has_argument(argv, argv+argc, "--k") || !has_argument(argv, argv+argc, "--input") || !has_argument(argv, argv+argc, "--mode")) {
+        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --mode MODE [--cols INPUT_COLS]  [--parallel] \n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
         std::cout << "Options:\n"; 
         std::cout << "\t--k                 | Number of clusters\n";
         std::cout << "\t--input             | Path of the input file dataset in csv format\n";
-        std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`)\n";
         std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
+        std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`). If omitted all columns are considered\n";
         std::cout << "\t--parallel          | Enables parallel execution\n";
         std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: `" << out_clusters_file << "`)\n";
         std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: `" << out_centroids_file << "`)\n";
@@ -49,15 +49,27 @@ int main(int argc, char *argv[]) {
     
     k = std::stoi(get_argument(argv, argv + argc, "--k"));
     in_file = get_argument(argv, argv + argc, "--input");
-
-    std::stringstream ss(get_argument(argv, argv + argc, "--cols"));
-    for (int i; ss >> i;) {
-        features.push_back(i);    
-        if (ss.peek() == ',')
-            ss.ignore();
-    }
-
     mode = std::stoi(get_argument(argv, argv + argc, "--mode"));
+
+    if (has_argument(argv, argv+argc, "--cols")) {
+        // Reads the argument integers separated by commas
+        std::stringstream ss(get_argument(argv, argv + argc, "--cols"));
+        for (int i; ss >> i;) {
+            features.push_back(i);    
+            if (ss.peek() == ',') {
+                ss.ignore();
+            }
+        }
+    } else {
+        // Reads the first line of the file in order to count the values number
+        std::ifstream infile(in_file);
+        std::string first_line;
+        getline(infile, first_line);
+        int commas = std::count(first_line.begin(), first_line.end(), ',');
+        for (int i = 0; i < commas + 1; i++) {
+            features.push_back(i);
+        }
+    }
 
     if (has_argument(argv, argv+argc, "--clusters-output")) {
         out_clusters_file = get_argument(argv, argv + argc, "--clusters-output");

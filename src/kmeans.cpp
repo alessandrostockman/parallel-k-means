@@ -73,7 +73,7 @@ void KMeans::init_clusters(Dataset& data) {
     std::vector<int> random_history;
     bool duplicate;
 
-    if (mode != MODE_K_MEANS_PP) {
+    if (mode == MODE_K_MEANS || mode == MODE_K_MEANS_PP || mode == MODE_K_MEDOIDS) {
         // Standard variant
         
         for (int i = 0; i < k; i++) {
@@ -102,7 +102,7 @@ void KMeans::init_clusters(Dataset& data) {
             r->set_cluster(i);
             centroids[i] = centroid;
         }
-    } else {
+    } else if (mode == MODE_K_MEANS_PP) {
         // Kmeans++ variant
 
         // Pick the first cluster centroids at random
@@ -148,6 +148,8 @@ void KMeans::init_clusters(Dataset& data) {
     
         // Assign each observation the index of it's nearest cluster centroid
         update_clusters(data);
+    } else {
+        throw std::invalid_argument("Unknown MODE");
     }
 }
 
@@ -171,7 +173,7 @@ void KMeans::update_clusters(Dataset& data) {
 int KMeans::update_centroids(Dataset& data) {
     int changes = 0;
 
-    if (mode != MODE_K_MEDIANS) {
+    if (mode == MODE_K_MEANS || mode == MODE_K_MEANS_PP) {
         // Standard variant
         int *sizes = (int *)malloc(sizeof(int) * k);
         Record *cumulatives = (Record *)malloc(sizeof(Record) * k);
@@ -189,7 +191,7 @@ int KMeans::update_centroids(Dataset& data) {
             }
             sizes[r->get_cluster()]++;
         }
-        
+
         // Compute the mean for each cluster
         for (int i = 0; i < k; i++) {
             Record mean_features = Record(data.get_feature_num());
@@ -203,7 +205,7 @@ int KMeans::update_centroids(Dataset& data) {
                 centroids[i] = Record(mean_features);
             }
         }
-    } else {
+    } else if (mode == MODE_K_MEDIANS) {
         // K-medians variant
         int *sizes = (int *)malloc(sizeof(int) * k);
         double ***temps = (double ***)malloc(sizeof(double **) * k);
@@ -250,6 +252,11 @@ int KMeans::update_centroids(Dataset& data) {
                 centroids[i] = med;
             }
         }
+    } else if (mode == MODE_K_MEDOIDS) {
+        // K-medoids variant
+        //TODO: Implement
+    } else {
+        throw std::invalid_argument("Unknown MODE");
     }
     return changes;
 }

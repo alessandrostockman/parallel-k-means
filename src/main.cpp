@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Writing output files:\n";
     p.write_cluster(*dataset, out_clusters_file);
     std::cout << "\tClusters output wrote to " << out_clusters_file << "\n";
-    p.write_centroids(*dataset, km.get_centroids(), out_centroids_file);
+    p.write_centroids(*dataset, km.get_centroids(), k, out_centroids_file);
     std::cout << "\tCentroids output wrote to " << out_clusters_file << "\n";
     std::cout << "Exiting...\n";
     return 0;

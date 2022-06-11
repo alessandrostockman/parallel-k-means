@@ -22,19 +22,18 @@ bool has_argument(char **begin, char **end, const std::string &option) {
 
 int main(int argc, char *argv[]) {
     int max_iter = 10000, log_interval = 100, k, mode;
-    bool verbose, parallel;
+    bool verbose;
     std::string in_file, out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
     std::vector<int> features;
     CSVParser p;
 
     if (has_argument(argv, argv+argc, "--help") || !has_argument(argv, argv+argc, "--k") || !has_argument(argv, argv+argc, "--input") || !has_argument(argv, argv+argc, "--mode")) {
-        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --mode MODE [--cols INPUT_COLS]  [--parallel] \n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
+        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --mode MODE [--cols INPUT_COLS]\n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
         std::cout << "Options:\n"; 
         std::cout << "\t--k                 | Number of clusters\n";
         std::cout << "\t--input             | Path of the input file dataset in csv format\n";
         std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
         std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`). If omitted all columns are considered\n";
-        std::cout << "\t--parallel          | Enables parallel execution\n";
         std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: `" << out_clusters_file << "`)\n";
         std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: `" << out_centroids_file << "`)\n";
         std::cout << "\t--max-iter          | Maximum number of iterations after which the program is stopped  (Default: `" << max_iter << "`)\n";
@@ -89,7 +88,6 @@ int main(int argc, char *argv[]) {
         srand((unsigned int)time(NULL));
     }
     
-    parallel = has_argument(argv, argv+argc, "--parallel");
     verbose = has_argument(argv, argv+argc, "--verbose");
     
     // Dataset loading
@@ -99,7 +97,7 @@ int main(int argc, char *argv[]) {
 
     // Algorithm execution
     std::cout << "Starting algorithm execution...\n";
-    KMeans km = KMeans(k, mode, max_iter, parallel, verbose, log_interval);
+    KMeans km = KMeans(k, mode, max_iter, verbose, log_interval);
     bool res = km.fit(*dataset);
 
     // Prints result depending on returning value of the fit method 

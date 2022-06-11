@@ -1,10 +1,9 @@
 #include "kmeans.h"
 
-KMeans::KMeans(int k, int mode, int max_iter, bool parallel, bool verbose, int log_interval) : 
+KMeans::KMeans(int k, int mode, int max_iter, bool verbose, int log_interval) : 
     k(k),
     mode(mode),
     max_iter(max_iter),
-    parallel(parallel),
     verbose(verbose),
     log_interval(log_interval),
     iter(0) {
@@ -153,7 +152,7 @@ void KMeans::init_clusters(Dataset& data) {
 }
 
 void KMeans::update_clusters(Dataset& data) {
-#pragma omp parallel for if (parallel)
+#pragma omp parallel for
     // Updates parallely every data point's cluster by choosing the one with the minimum distance
     for (int i = 0; i < (int)data.size(); i++) {
         Record *r = data[i];

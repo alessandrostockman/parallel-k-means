@@ -20,20 +20,28 @@ bool has_argument(char **begin, char **end, const std::string &option) {
     return std::find(begin, end, option) != end;
 }
 
+int omp_thread_count() {
+    int n = 0;
+    #pragma omp parallel reduction(+:n)
+    n += 1;
+    return n;
+}
+
 int main(int argc, char *argv[]) {
     int max_iter = 10000, log_interval = 100, k, mode;
-    bool verbose;
+    bool verbose, header;
     std::string in_file, out_clusters_file = "out/clusters.csv", out_centroids_file = "out/centroids.csv";
     std::vector<int> features;
     CSVParser p;
 
     if (has_argument(argv, argv+argc, "--help") || !has_argument(argv, argv+argc, "--k") || !has_argument(argv, argv+argc, "--input") || !has_argument(argv, argv+argc, "--mode")) {
-        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --mode MODE [--cols INPUT_COLS]\n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
+        std::cout << "Usage: kmeans.exe --k CLUSTERS --input INPUT_FILE --mode MODE [--cols INPUT_COLS] [--header]\n\t[--clusters-output CL_FILE] [--centroids-output CE_FILE] [--max-iter MAX_ITER] \n\t[--verbose] [--log-interval LOG_INT] [--seed SEED] [--help]\n";
         std::cout << "Options:\n"; 
         std::cout << "\t--k                 | Number of clusters\n";
         std::cout << "\t--input             | Path of the input file dataset in csv format\n";
         std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
         std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`). If omitted all columns are considered\n";
+        std::cout << "\t--header            | If present, the first line of the input CSV file is skipped as it's considered as a header\n";
         std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: `" << out_clusters_file << "`)\n";
         std::cout << "\t--centroids-output  | Output file containing the final centroids  (Default: `" << out_centroids_file << "`)\n";
         std::cout << "\t--max-iter          | Maximum number of iterations after which the program is stopped  (Default: `" << max_iter << "`)\n";
@@ -88,11 +96,14 @@ int main(int argc, char *argv[]) {
         srand((unsigned int)time(NULL));
     }
     
+    header = has_argument(argv, argv+argc, "--header");
     verbose = has_argument(argv, argv+argc, "--verbose");
+
+    std::cout << "Enabled parallelism using " << omp_thread_count() << " threads\n";
     
     // Dataset loading
     std::cout << "Loading dataset from " << in_file << "\n";
-    Dataset *dataset = p.read_dataset(in_file, features);
+    Dataset *dataset = p.read_dataset(in_file, features, header);
     std::cout << "\tDataset loaded: " << dataset->size() << " records with " << dataset->get_feature_num() << " features\n";
 
     // Algorithm execution

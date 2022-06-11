@@ -13,7 +13,7 @@
 
 class CSVParser {
     public:
-        Dataset *read_dataset(std::string in_file, std::vector<int> features);
+        Dataset *read_dataset(std::string in_file, std::vector<int> features, bool header_line);
         void write_cluster(Dataset d, std::string out_file);
         void write_centroids(Dataset d, Record *centroids, std::string out_file);
 };

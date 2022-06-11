@@ -25,17 +25,18 @@ void CSVParser::write_centroids(Dataset d, Record *centroids, std::string out_fi
     ce_file.close();
 }
 
-Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features) {
+Dataset *CSVParser::read_dataset(std::string in_file, std::vector<int> features, bool header_line) {
     CSVRow row;
     std::ifstream file(in_file);
     std::vector<Record *> records = std::vector<Record *>();
     int feature_num = features.size();
 
-    bool first_line = true;
     while(file >> row) {
         // For each row in the input stream reads the comma separated values indexed by the items in the features vector
-        if (first_line) {
-            first_line = false;
+        
+        // Skips the first line if header_line is true
+        if (header_line) {
+            header_line = false;
         } else {
             double *f = (double *)malloc(sizeof(double) * feature_num);
             for (int i = 0; i < (int)features.size(); i++) {

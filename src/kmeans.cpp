@@ -73,7 +73,7 @@ void KMeans::init_clusters(Dataset& data) {
     std::vector<int> random_history;
     bool duplicate;
 
-    if (mode == MODE_K_MEANS || mode == MODE_K_MEDIANS || mode == MODE_K_MEDOIDS) {
+    if (mode == MODE_K_MEANS || mode == MODE_K_MEDIANS) {
         // Standard variant
         
         for (int i = 0; i < k; i++) {
@@ -249,9 +249,6 @@ int KMeans::update_centroids(Dataset& data) {
                 centroids[i] = med;
             }
         }
-    } else if (mode == MODE_K_MEDOIDS) {
-        // K-medoids variant
-        //TODO: Implement
     } else {
         throw std::invalid_argument("Unknown MODE");
     }

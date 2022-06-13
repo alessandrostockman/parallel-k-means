@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Options:\n"; 
         std::cout << "\t--k                 | Number of clusters\n";
         std::cout << "\t--input             | Path of the input file dataset in csv format\n";
-        std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Medoids, 3: K-Means++]\n";
+        std::cout << "\t--mode              | Selects an execution variant: [0: Standard K-Means, 1: K-Medians, 2: K-Means++]\n";
         std::cout << "\t--cols              | 0-indexed columns of the input file considered for the clustering separated by comma (e.g.: `0,1,2,4`). If omitted all columns are considered\n";
         std::cout << "\t--header            | If present, the first line of the input CSV file is skipped as it's considered as a header\n";
         std::cout << "\t--clusters-output   | Output file containing the clustered data  (Default: `" << out_clusters_file << "`)\n";

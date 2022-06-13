@@ -21,8 +21,7 @@
 
 #define MODE_K_MEANS 0
 #define MODE_K_MEDIANS 1
-#define MODE_K_MEDOIDS 2
-#define MODE_K_MEANS_PP 3
+#define MODE_K_MEANS_PP 2
 
 class KMeans {
 

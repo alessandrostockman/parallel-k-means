@@ -214,26 +214,15 @@ int KMeans::update_centroids(Dataset& data) {
         }
     } else if (mode == MODE_K_MEDIANS) {
         // K-medians variant
-        int *sizes = (int *)malloc(sizeof(int) * k);
+        int *sizes = (int *)calloc(sizeof(int), k);
         double ***temps = (double ***)malloc(sizeof(double **) * k);
-        int *counters = (int *)malloc(sizeof(int) * k);
-        for (int i = 0; i < k; i++) {
-            sizes[i] = 0;
-            counters[i] = 0;
-        }
-        
-        // Count the points for each cluster
-        for (int i = 0; i < (int)data.size(); i++) {
-            Record *r = data[i];
-            sizes[r->get_cluster()]++;
-        }
 
         // Build a temporary array for the data points in each cluster
         for (int i = 0; i < k; i++) {
             temps[i] = (double **)malloc(sizeof(double *) * data.get_feature_num());
 
             for (int j = 0; j < (int)data.get_feature_num(); j++) {
-                temps[i][j] = (double *)malloc(sizeof(double) * sizes[i]);
+                temps[i][j] = (double *)malloc(sizeof(double) * (int)data.size());
             }
         }
 
@@ -241,16 +230,17 @@ int KMeans::update_centroids(Dataset& data) {
         for (int i = 0; i < (int)data.size(); i++) {
             Record *r = data[i];
             for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                temps[r->get_cluster()][f][counters[r->get_cluster()]] = (*r)[f];
+                temps[r->get_cluster()][f][sizes[r->get_cluster()]] = (*r)[f];
             }
-            counters[r->get_cluster()]++;
+            sizes[r->get_cluster()]++;
         }
 
+#pragma omp parallel for
         for (int i = 0; i < k; i++) {
             // Order the temporary arrays in order to get the median values for each cluster
             Record med = Record(data.get_feature_num());
             for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                std::sort(temps[i][f], temps[i][f] + sizes[i]);
+                std::sort(temps[i][f], temps[i][f] + sizes[i]); //TODO: -1?
                 med.set_features(f, sizes[i] % 2 != 0 ? temps[i][f][(int)sizes[i] / 2] : (temps[i][f][sizes[i] / 2] + temps[i][f][(sizes[i] - 1) / 2]) / 2);
             }
 

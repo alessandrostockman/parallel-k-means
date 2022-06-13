@@ -73,7 +73,7 @@ void KMeans::init_clusters(Dataset& data) {
     std::vector<int> random_history;
     bool duplicate;
 
-    if (mode == MODE_K_MEANS || mode == MODE_K_MEANS_PP || mode == MODE_K_MEDOIDS) {
+    if (mode == MODE_K_MEANS || mode == MODE_K_MEDIANS || mode == MODE_K_MEDOIDS) {
         // Standard variant
         
         for (int i = 0; i < k; i++) {
@@ -184,20 +184,27 @@ int KMeans::update_centroids(Dataset& data) {
         }
 
         // Compute the sum of all the features for each cluster
-        for (int i = 0; i < (int)data.size(); i++) {
-            Record *r = data[i];
-            for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                cumulatives[r->get_cluster()].set_features(f, cumulatives[r->get_cluster()][f] + (*r)[f]);
+        for (int f = 0; f < (int)data.get_feature_num(); f++) {
+            double *cumulatives_f = (double *)calloc(sizeof(double), k);
+#pragma omp parallel for reduction(+:cumulatives_f[:k]) reduction(+:sizes[:k])
+            for (int i = 0; i < (int)data.size(); i++) {
+                Record *r = data[i];
+                cumulatives_f[r->get_cluster()] += (*r)[f];
+                sizes[r->get_cluster()]++;
             }
-            sizes[r->get_cluster()]++;
+
+            for (int i = 0; i < k; i++) {
+                cumulatives[i].set_features(f, cumulatives_f[i]);
+            }
         }
 
         // Compute the mean for each cluster
         for (int i = 0; i < k; i++) {
             Record mean_features = Record(data.get_feature_num());
+            int size = sizes[i] / (int)data.get_feature_num();
 
             for (int f = 0; f < (int)data.get_feature_num(); f++) {
-                mean_features.set_features(f, cumulatives[i][f] / sizes[i]);
+                mean_features.set_features(f, cumulatives[i][f] / size);
             }
 
             if (centroids[i] != mean_features) {

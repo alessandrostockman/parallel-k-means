@@ -25,8 +25,8 @@ double KMeans::get_timer_value(int timer) {
 std::string KMeans::get_times(int type) {
     // Build the string containing the times of execution of the different sections of the algorithm 
     std::string log = "Initialization time: " + std::to_string(get_timer_value(TIME_INITIALIZATION)) 
-        + "ms | Reclustering time: " + std::to_string(get_timer_value(TIME_RECLUSTERING)) 
-        + "ms | Update time: " + std::to_string(get_timer_value(TIME_UPDATE)) + "ms";
+        + "ms \t| Reclustering time: " + std::to_string(get_timer_value(TIME_RECLUSTERING)) 
+        + "ms \t| Update time: " + std::to_string(get_timer_value(TIME_UPDATE)) + "ms";
         if (type == TIMER_TOTAL) {
             log = log + " | Total time: " + std::to_string(get_timer_value(TIME_TOTAL)) + "ms";
         }
